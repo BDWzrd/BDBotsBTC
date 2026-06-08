@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDBotsBTC - Mad Scientist v1.0</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BDBOTS<span class="accent">BTC</span></h1>
+            <p>Mad Scientist Trading Bot v1.0</p>
+        </header>
+
+        <div class="stats">
+            <div>TOTAL P&L <span id="total-pl" class="green">+$1,284.67</span></div>
+            <div>TODAY <span id="today-pl" class="green">+$342.10</span></div>
+            <div>BANKROLL <span id="bankroll">$24,875.00</span></div>
+            <div>DD <span id="dd" class="red">-1.8%</span></div>
+        </div>
+
+        <nav>
+            <button onclick="setTab(0)">LIVE</button>
+            <button onclick="setTab(1)">History</button>
+            <button onclick="setTab(2)">Mission</button>
+            <button onclick="setTab(3)">System</button>
+        </nav>
+
+        <div class="strategy">
+            <button onclick="runPipeline()" id="scan-btn">SCAN ▶</button>
+            <button onclick="runPipeline()" id="fair-btn">FAIR ▶</button>
+            <button onclick="runPipeline()" id="edge-btn">EDGE ▶</button>
+            <button onclick="runPipeline()" id="limit-btn">LIMIT ▶</button>
+            <button onclick="runPipeline()" id="fill-btn">FILL ▶</button>
+            <button onclick="runPipeline()" id="hold-btn">HOLD</button>
+        </div>
+
+        <div class="main">
+            <div class="left">
+                <h3>OPEN POSITIONS <span id="positions-count">1</span></h3>
+                <div id="positions" class="positions-list"></div>
+
+                <h3>MICROSTRUCTURE MESH</h3>
+                <div id="orderbook" class="orderbook"></div>
+            </div>
+
+            <div class="center">
+                <h3>LIVE TRADE FEED</h3>
+                <div id="trade-feed" class="feed"></div>
+            </div>
+
+            <div class="right">
+                <h3>BTC/USD</h3>
+                <div id="btc-price" class="price">$68,742</div>
+                
+                <h3>PERFORMANCE MATRIX</h3>
+                <table id="perf-table">
+                    <thead>
+                        <tr><th>LAYER</th><th>TRADES</th><th>WIN%</th><th>P&L</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <div class="health">
+                BINANCE WS <span class="green">● LIVE</span> &nbsp;&nbsp; 
+                CLOB WS <span class="green">● LIVE</span> &nbsp;&nbsp; 
+                STATUS: <span id="status" class="green">RUNNING</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
