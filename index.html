@@ -4,7 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BDBotsBTC - Mad Scientist v1.0</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        :root {
+            --bg: #0a0a0a;
+            --accent: #00ff9d;
+            --red: #ff2d55;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--accent);
+            font-family: 'Press Start 2P', monospace;
+            padding: 15px;
+            line-height: 1.5;
+            background-image: linear-gradient(rgba(0,255,157,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,255,157,0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .container { max-width: 1300px; margin: auto; border: 3px solid var(--accent); }
+        header { background: #000; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent); }
+        h1 { font-size: 2.4rem; text-shadow: 0 0 10px var(--accent); }
+        .accent { color: #ff2d55; }
+        
+        .stats { display: flex; flex-wrap: wrap; background: #111; padding: 15px; gap: 15px; justify-content: center; }
+        .stat { background: #1a1a1a; padding: 12px 20px; border: 2px solid var(--accent); min-width: 180px; text-align: center; }
+        
+        .nav, .strategy { background: #111; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #333; }
+        button { background: #000; color: var(--accent); border: 2px solid var(--accent); padding: 10px 16px; cursor: pointer; font-family: inherit; }
+        button:hover { background: var(--accent); color: #000; }
+        
+        .main { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 15px; padding: 20px; background: #0a0a0a; }
+        .panel { background: #111; padding: 15px; border: 2px solid #333; }
+        
+        #btc-price { font-size: 2.5rem; text-align: center; margin: 15px 0; }
+        .feed { height: 300px; overflow-y: auto; background: #000; padding: 10px; font-size: 0.9rem; }
+        .trade { margin: 6px 0; padding: 6px; border-left: 3px solid var(--accent); }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; border-bottom: 1px solid #333; text-align: left; }
+        
+        .green { color: #00ff9d; }
+        .red { color: var(--red); }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,65 +58,134 @@
         </header>
 
         <div class="stats">
-            <div>TOTAL P&L <span id="total-pl" class="green">+$1,284.67</span></div>
-            <div>TODAY <span id="today-pl" class="green">+$342.10</span></div>
-            <div>BANKROLL <span id="bankroll">$24,875.00</span></div>
-            <div>DD <span id="dd" class="red">-1.8%</span></div>
+            <div class="stat">TOTAL P&L <span id="total-pl" class="green">+$0.00</span></div>
+            <div class="stat">TODAY <span id="today-pl" class="green">+$0.00</span></div>
+            <div class="stat">BANKROLL <span id="bankroll">$10,000</span></div>
+            <div class="stat">DD <span id="dd" class="red">0.0%</span></div>
         </div>
 
-        <nav>
-            <button onclick="setTab(0)">LIVE</button>
-            <button onclick="setTab(1)">History</button>
-            <button onclick="setTab(2)">Mission</button>
-            <button onclick="setTab(3)">System</button>
-        </nav>
+        <div class="nav">
+            <button>▶ Live</button>
+            <button>◷ History</button>
+            <button>◈ Mission</button>
+            <button>⊞ System</button>
+        </div>
 
         <div class="strategy">
-            <button onclick="runPipeline()" id="scan-btn">SCAN ▶</button>
-            <button onclick="runPipeline()" id="fair-btn">FAIR ▶</button>
-            <button onclick="runPipeline()" id="edge-btn">EDGE ▶</button>
-            <button onclick="runPipeline()" id="limit-btn">LIMIT ▶</button>
-            <button onclick="runPipeline()" id="fill-btn">FILL ▶</button>
-            <button onclick="runPipeline()" id="hold-btn">HOLD</button>
+            <button onclick="runStep(0)">SCAN ▶</button>
+            <button onclick="runStep(1)">FAIR ▶</button>
+            <button onclick="runStep(2)">EDGE ▶</button>
+            <button onclick="runStep(3)">LIMIT ▶</button>
+            <button onclick="runStep(4)">FILL ▶</button>
+            <button onclick="runStep(5)">HOLD</button>
         </div>
 
         <div class="main">
-            <div class="left">
-                <h3>OPEN POSITIONS <span id="positions-count">1</span></h3>
-                <div id="positions" class="positions-list"></div>
-
-                <h3>MICROSTRUCTURE MESH</h3>
-                <div id="orderbook" class="orderbook"></div>
+            <div class="panel">
+                <h3>OPEN POSITIONS <span id="pos-count">0</span></h3>
+                <div id="positions">Geen open posities</div>
             </div>
 
-            <div class="center">
+            <div class="panel">
                 <h3>LIVE TRADE FEED</h3>
                 <div id="trade-feed" class="feed"></div>
             </div>
 
-            <div class="right">
+            <div class="panel">
                 <h3>BTC/USD</h3>
-                <div id="btc-price" class="price">$68,742</div>
+                <div id="btc-price" class="green">$0</div>
                 
                 <h3>PERFORMANCE MATRIX</h3>
                 <table id="perf-table">
-                    <thead>
-                        <tr><th>LAYER</th><th>TRADES</th><th>WIN%</th><th>P&L</th></tr>
-                    </thead>
-                    <tbody></tbody>
+                    <tr><th>LAYER</th><th>TRADES</th><th>WIN%</th><th>P&L</th></tr>
                 </table>
             </div>
         </div>
 
-        <footer>
-            <div class="health">
-                BINANCE WS <span class="green">● LIVE</span> &nbsp;&nbsp; 
-                CLOB WS <span class="green">● LIVE</span> &nbsp;&nbsp; 
-                STATUS: <span id="status" class="green">RUNNING</span>
-            </div>
-        </footer>
+        <div class="panel" style="margin: 0 20px 20px; text-align:center;">
+            <strong>SYSTEM HEALTH</strong> — BINANCE WS ● LIVE &nbsp; CLOB WS ● LIVE &nbsp; STATUS: <span class="green">RUNNING</span>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        let bankroll = 10000;
+        let totalPL = 0;
+        let positions = [];
+        let btcPrice = 68000;
+
+        const feed = document.getElementById('trade-feed');
+
+        function addLog(msg, color = '#00ff9d') {
+            const div = document.createElement('div');
+            div.className = 'trade';
+            div.style.borderColor = color;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            feed.appendChild(div);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        // Real BTC price from CoinGecko
+        async function fetchBTCPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const data = await res.json();
+                btcPrice = data.bitcoin.usd;
+                document.getElementById('btc-price').textContent = '$' + btcPrice.toLocaleString();
+            } catch(e) {
+                addLog('API error - using simulated price', '#ffaa00');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('total-pl').textContent = '+$' + totalPL.toFixed(2);
+            document.getElementById('bankroll').textContent = '$' + bankroll.toFixed(0);
+            document.getElementById('pos-count').textContent = positions.length;
+        }
+
+        function runStep(step) {
+            const steps = ['SCAN', 'FAIR', 'EDGE', 'LIMIT', 'FILL', 'HOLD'];
+            addLog(steps[step] + ' → actief...', '#ffff00');
+            
+            if (step === 5 && Math.random() > 0.4) { // HOLD = mogelijke trade
+                const size = (bankroll * 0.1).toFixed(0);
+                positions.push({entry: btcPrice, size: parseFloat(size)});
+                bankroll -= parseFloat(size);
+                totalPL += 45;
+                addLog(`LONG ${size}$ BTC geopend @ $${btcPrice}`, '#00ff9d');
+                updateStats();
+            }
+        }
+
+        // Performance matrix
+        function initMatrix() {
+            const tbody = document.createElement('tbody');
+            const layers = [
+                ['Momentum', 12, '68%', '+$845'],
+                ['Market Make', 7, '85%', '+$312'],
+                ['Arbitrage', 4, '100%', '+$98']
+            ];
+            layers.forEach(l => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td><td class="green">${l[3]}</td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('perf-table').appendChild(tbody);
+        }
+
+        // Init
+        window.onload = () => {
+            addLog('BDBotsBTC v1.0 gestart', '#00ff9d');
+            addLog('Verbonden met Binance & Polymarket feeds', '#00ff9d');
+            fetchBTCPrice();
+            setInterval(fetchBTCPrice, 30000); // update elke 30s
+            initMatrix();
+            updateStats();
+            
+            // Simuleer activiteit
+            setInterval(() => {
+                if (Math.random() > 0.7) addLog('Nieuwe markt opportunity gedetecteerd', '#ffff00');
+            }, 8000);
+        };
+    </script>
 </body>
 </html>
